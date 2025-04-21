@@ -11,7 +11,7 @@ function SignIn() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://pdf-auto-bd.vercel.app/api/login', {
+      const response = await fetch('https://pdf-auto-bd.vercel.app/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
