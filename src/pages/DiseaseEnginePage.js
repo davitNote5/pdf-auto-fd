@@ -83,7 +83,7 @@ function DiseaseEngine() {
 
     try {
       // Send the updated data to the backend
-      const response = await axios.post("http://localhost:8000/save-disease-data", {
+      const response = await axios.post("https://pdf-auto-bd.vercel.app/api/save-disease-data", {
         pageIndex: index,
         updatedData: updatedData,
       });
@@ -104,7 +104,7 @@ function DiseaseEngine() {
     useEffect(() => {
         const fetchDiseaseData = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/get-main-cont-response/");  // Change to GET request
+                const response = await axios.get("https://pdf-auto-bd.vercel.app/api/get-main-cont-response/");  // Change to GET request
                 const data = response.data.mainContResponse;  // Get the mainContResponse from the response
                 const formattedData = Object.values(data);  // Convert the object to an array if needed
                 setDiseaseData(formattedData);  // Store the formatted data into the state
@@ -130,22 +130,22 @@ function DiseaseEngine() {
       // Set API endpoint based on the action type
       switch (actionType) {
         case "skipPage":
-          apiUrl = "http://localhost:8000/skip-page";
+          apiUrl = "https://pdf-auto-bd.vercel.app/api/skip-page";
           break;
         case "runDiffDisease":
-        apiUrl = "http://localhost:8000/run-different-disease";
+        apiUrl = "https://pdf-auto-bd.vercel.app/api/run-different-disease";
         break;
         case "runSameDiseaseGpt":
-        apiUrl = "http://localhost:8000/run-same-disease-gpt";
+        apiUrl = "https://pdf-auto-bd.vercel.app/api/run-same-disease-gpt";
         break;
         case "runDiffDiseaseGPT":
-        apiUrl = "http://localhost:8000/run-different-disease-gpt";
+        apiUrl = "https://pdf-auto-bd.vercel.app/api/run-different-disease-gpt";
         break;
         case "runGptwithMedication":
-        apiUrl = "http://localhost:8000/run-gpt-with-med";
+        apiUrl = "https://pdf-auto-bd.vercel.app/api/run-gpt-with-med";
         break;
         case "runGptWithoutMedication":
-        apiUrl = "http://localhost:8000/run-gpt-without-med";
+        apiUrl = "https://pdf-auto-bd.vercel.app/api/run-gpt-without-med";
         break;
         default:
           return;

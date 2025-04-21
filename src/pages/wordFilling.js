@@ -18,7 +18,7 @@ function WordFilling() {
     setLoading(true); 
     try {
       // Step 1: Get the zip filename from the backend
-      const filenameResponse = await axios.get("http://localhost:8000/get-zip-filename");
+      const filenameResponse = await axios.get("https://pdf-auto-bd.vercel.app/api/get-zip-filename");
       const filename = filenameResponse.data.filename;
   
       if (!filename) {
@@ -28,7 +28,7 @@ function WordFilling() {
       }
   
       // Step 2: Send the request to the backend to generate the documents
-      const response = await axios.post("http://localhost:8000/generate-documents", {}, {
+      const response = await axios.post("https://pdf-auto-bd.vercel.app/api/generate-documents", {}, {
         responseType: 'blob',  // Important to handle binary data
       });
   
