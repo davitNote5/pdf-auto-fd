@@ -77,7 +77,7 @@ function FormPage() {
       //   headers: { "Content-Type": "multipart/form-data" },
       // });
 
-      const response = await axios.post("https://pdf-auto-bd.vercel.app/api/upload/", formData, {
+      const response = await axios.post("https://pdf-auto-bd.vercel.app/upload/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

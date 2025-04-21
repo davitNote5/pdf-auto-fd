@@ -73,11 +73,11 @@ function DiseaseEngine() {
 
     try {
       // Send updated extracted data to the backend for saving
-      const response = await axios.post("https://pdf-auto-bd.vercel.app/api/save-extracted-data", modifiedData);
+      const response = await axios.post("https://pdf-auto-bd.vercel.app/save-extracted-data", modifiedData);
       // console.log("Data saved:", response.data);
 
       // Send data for processing
-      const processResponse = await axios.post("https://pdf-auto-bd.vercel.app/api/disease-processing/", modifiedData);
+      const processResponse = await axios.post("https://pdf-auto-bd.vercel.app/disease-processing/", modifiedData);
       // console.log("Disease Processing Result:", processResponse.data);
       setProcessedData(processResponse.data);
   
