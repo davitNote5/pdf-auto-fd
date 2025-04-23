@@ -85,7 +85,7 @@ function DiseaseEngine() {
 
     try {
       // Send the updated data to the backend
-      const response = await axios.post("https://pdf-auto-bd-78m3.onrender.com/save-disease-data", {
+      const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-disease-data", {
         pageIndex: index,
         updatedData: updatedData,
       });
@@ -106,7 +106,7 @@ function DiseaseEngine() {
     useEffect(() => {
         const fetchDiseaseData = async () => {
             try {
-                const response = await axios.get("https://pdf-auto-bd-78m3.onrender.com/get-main-cont-response/");  // Change to GET request
+                const response = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-main-cont-response/");  // Change to GET request
                 const data = response.data.mainContResponse;  // Get the mainContResponse from the response
                 const formattedData = Object.values(data);  // Convert the object to an array if needed
                 setDiseaseData(formattedData);  // Store the formatted data into the state
@@ -132,22 +132,22 @@ function DiseaseEngine() {
       // Set API endpoint based on the action type
       switch (actionType) {
         case "skipPage":
-          apiUrl = "https://pdf-auto-bd-78m3.onrender.com/skip-page";
+          apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/skip-page";
           break;
         case "runDiffDisease":
-        apiUrl = "https://pdf-auto-bd-78m3.onrender.com/run-different-disease";
+        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease";
         break;
         case "runSameDiseaseGpt":
-        apiUrl = "https://pdf-auto-bd-78m3.onrender.com/run-same-disease-gpt";
+        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-same-disease-gpt";
         break;
         case "runDiffDiseaseGPT":
-        apiUrl = "https://pdf-auto-bd-78m3.onrender.com/run-different-disease-gpt";
+        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease-gpt";
         break;
         case "runGptwithMedication":
-        apiUrl = "https://pdf-auto-bd-78m3.onrender.com/run-gpt-with-med";
+        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-gpt-with-med";
         break;
         case "runGptWithoutMedication":
-        apiUrl = "https://pdf-auto-bd-78m3.onrender.com/run-gpt-without-med";
+        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-gpt-without-med";
         break;
         default:
           return;
