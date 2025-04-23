@@ -5,6 +5,8 @@ import axios from "axios";
 import Modal from "react-modal";  // Import React Modal
 import Spinner from 'react-bootstrap/Spinner';  // Correct way to import Spinner
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "./styles.css"
+
 Modal.setAppElement('#root');  // Set the root element for accessibility
 
 function DiseaseEngine() {
@@ -83,7 +85,7 @@ function DiseaseEngine() {
 
     try {
       // Send the updated data to the backend
-      const response = await axios.post("https://pdf-auto-bd.vercel.app/save-disease-data", {
+      const response = await axios.post("https://pdf-auto-bd-1.onrender.com/save-disease-data", {
         pageIndex: index,
         updatedData: updatedData,
       });
@@ -104,7 +106,7 @@ function DiseaseEngine() {
     useEffect(() => {
         const fetchDiseaseData = async () => {
             try {
-                const response = await axios.get("https://pdf-auto-bd.vercel.app/get-main-cont-response/");  // Change to GET request
+                const response = await axios.get("https://pdf-auto-bd-1.onrender.com/get-main-cont-response/");  // Change to GET request
                 const data = response.data.mainContResponse;  // Get the mainContResponse from the response
                 const formattedData = Object.values(data);  // Convert the object to an array if needed
                 setDiseaseData(formattedData);  // Store the formatted data into the state
@@ -130,22 +132,22 @@ function DiseaseEngine() {
       // Set API endpoint based on the action type
       switch (actionType) {
         case "skipPage":
-          apiUrl = "https://pdf-auto-bd.vercel.app/skip-page";
+          apiUrl = "https://pdf-auto-bd-1.onrender.com/skip-page";
           break;
         case "runDiffDisease":
-        apiUrl = "https://pdf-auto-bd.vercel.app/run-different-disease";
+        apiUrl = "https://pdf-auto-bd-1.onrender.com/run-different-disease";
         break;
         case "runSameDiseaseGpt":
-        apiUrl = "https://pdf-auto-bd.vercel.app/run-same-disease-gpt";
+        apiUrl = "https://pdf-auto-bd-1.onrender.com/run-same-disease-gpt";
         break;
         case "runDiffDiseaseGPT":
-        apiUrl = "https://pdf-auto-bd.vercel.app/run-different-disease-gpt";
+        apiUrl = "https://pdf-auto-bd-1.onrender.com/run-different-disease-gpt";
         break;
         case "runGptwithMedication":
-        apiUrl = "https://pdf-auto-bd.vercel.app/run-gpt-with-med";
+        apiUrl = "https://pdf-auto-bd-1.onrender.com/run-gpt-with-med";
         break;
         case "runGptWithoutMedication":
-        apiUrl = "https://pdf-auto-bd.vercel.app/run-gpt-without-med";
+        apiUrl = "https://pdf-auto-bd-1.onrender.com/run-gpt-without-med";
         break;
         default:
           return;
@@ -174,16 +176,16 @@ function DiseaseEngine() {
   // Function to render buttons based on showButton value
   const renderButtons = (showButton, diseaseInfo, index) => {
     const commonButtonStyles = {
-      transition: "background-color 0.3s ease, transform 0.3s ease"
-    };
+        transition: "background-color 0.3s ease, transform 0.3s ease ",
+      }    
 
     const buttonClasses = {
-      runDifferentDisease: "btn btn-primary btn-sm me-2",
-      runSameDisease: "btn btn-success btn-sm me-2",
-      runDifferentGPT: "btn btn-secondary btn-sm me-2",
-      skipPage: "btn btn-danger btn-sm",
-      runGptWithMed: "btn btn-warning text-white bg-dark btn-sm me-2",
-      runGptWithoutrMed: "btn btn-info text-light btn-sm me-2",
+        runDifferentDisease: "common-btn btn btn-primary btn-sm me-2",
+        runSameDisease: "common-btn btn btn-success btn-sm me-2",
+        runDifferentGPT: "common-btn btn btn-secondary btn-sm me-2",
+        skipPage: "common-btn btn btn-danger btn-sm",
+        runGptWithMed: "common-btn btn btn-warning text-white bg-dark btn-sm me-2",
+        runGptWithoutrMed: "common-btn btn btn-info text-light btn-sm me-2",
 
     };
 

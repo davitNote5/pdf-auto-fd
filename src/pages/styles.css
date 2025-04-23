@@ -1,0 +1,20 @@
+/* Default font size for larger screens */
+.common-btn {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 1rem;  /* Default font size for larger screens */
+
+  }
+
+  /* For mobile screens (max-width: 576px) */
+  @media (max-width: 1100px) {
+    .common-btn {
+      font-size: 0.45rem;  /* Font size for smaller screens */
+    }
+  }  
+
+  /* For mobile screens (max-width: 576px) */
+  @media (max-width: 800px) {
+    .common-btn {
+      font-size: 0.3rem;  /* Font size for smaller screens */
+    }
+  }

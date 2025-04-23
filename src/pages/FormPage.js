@@ -73,11 +73,7 @@ function FormPage() {
       formData.append("appointment_times", JSON.stringify(appointmentTimes));
       formData.append("file", selectedFile); // Append the PDF file
 
-      // const response = await axios.post("http://localhost:8000/upload/", formData, {
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
-
-      const response = await axios.post("https://pdf-auto-bd.vercel.app/upload/", formData, {
+      const response = await axios.post("https://pdf-auto-bd-1.onrender.com/upload/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
