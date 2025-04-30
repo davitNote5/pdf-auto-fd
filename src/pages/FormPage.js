@@ -153,34 +153,6 @@ function FormPage() {
               </div>
             ))}
 
-            // {action === "Discharge" && (
-            //   <>
-            //     <h4 className="mt-4">Enter 10th Appointment Details</h4>
-            //     <div className="row mb-3">
-            //       <div className="col">
-            //         <label className="form-label">10th Appointment Date</label>
-            //         <input
-            //           type="date"
-            //           className="form-control"
-            //           value={resetDate}
-            //           onChange={(e) => setResetDate(e.target.value)}
-            //           required
-            //         />
-            //       </div>
-            //       <div className="col">
-            //         <label className="form-label">10th Appointment Time (24-hour format)</label>
-            //         <input
-            //           type="time"
-            //           className="form-control"
-            //           value={resetTime}
-            //           onChange={(e) => setResetTime(e.target.value)}
-            //           required
-            //         />
-            //       </div>
-            //     </div>
-            //   </>
-            // )}
-
             <div className="mb-3">
               <label className="form-label">Upload PDF</label>
               <input
