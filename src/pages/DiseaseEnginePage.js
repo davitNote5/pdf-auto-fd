@@ -85,7 +85,7 @@ function DiseaseEngine() {
 
     try {
       // Send the updated data to the backend
-      const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-disease-data", {
+      const response = await axios.post("http://localhost:8000/save-disease-data", {
         pageIndex: index,
         updatedData: updatedData,
       });
@@ -106,7 +106,7 @@ function DiseaseEngine() {
     useEffect(() => {
         const fetchDiseaseData = async () => {
             try {
-                const response = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-main-cont-response/");  // Change to GET request
+                const response = await axios.get("http://localhost:8000/get-main-cont-response/");  // Change to GET request
                 const data = response.data.mainContResponse;  // Get the mainContResponse from the response
                 const formattedData = Object.values(data);  // Convert the object to an array if needed
                 setDiseaseData(formattedData);  // Store the formatted data into the state
@@ -132,22 +132,22 @@ function DiseaseEngine() {
       // Set API endpoint based on the action type
       switch (actionType) {
         case "skipPage":
-          apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/skip-page";
+          apiUrl = "http://localhost:8000/skip-page";
           break;
         case "runDiffDisease":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease";
+        apiUrl = "http://localhost:8000/run-different-disease";
         break;
         case "runSameDiseaseGpt":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-same-disease-gpt";
+        apiUrl = "http://localhost:8000/run-same-disease-gpt";
         break;
         case "runDiffDiseaseGPT":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease-gpt";
+        apiUrl = "http://localhost:8000/run-different-disease-gpt";
         break;
         case "runGptwithMedication":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-gpt-with-med";
+        apiUrl = "http://localhost:8000/run-gpt-with-med";
         break;
         case "runGptWithoutMedication":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-gpt-without-med";
+        apiUrl = "http://localhost:8000/run-gpt-without-med";
         break;
         default:
           return;
@@ -200,13 +200,40 @@ function DiseaseEngine() {
       }
 
     switch (showButton) {
+      case "0":  // No disease found
+      return (
+        <>
+          <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles} 
+            onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
+          >
+            Run Diff Disease
+          </button>
+          <button className={buttonClasses.runSameDisease} style={commonButtonStyles}
+              onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}
+          >
+            Run Same Disease (with GPT)
+          </button>
+          <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
+              onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
+              >
+            Run Diff Disease (with GPT)
+          </button>
+          <button className={buttonClasses.runGptWithoutrMed} style={commonButtonStyles}
+                onClick={() => handleButtonClick("runGptWithoutMedication", diseaseInfo, index)}
+            >
+              Get Disease Info without Med
+            </button>
+
+        </>
+      );
+
       case "1":  // No disease found
         return (
           <>
             <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles} 
               onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
             >
-              Run Different Disease
+              Run Diff Disease
             </button>
             <button className={buttonClasses.runSameDisease} style={commonButtonStyles}
                 onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}
@@ -216,14 +243,14 @@ function DiseaseEngine() {
             <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
                 onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
                 >
-              Run Different Disease (with GPT)
+              Run Diff Disease (with GPT)
             </button>
             <button 
               className={buttonClasses.skipPage} 
               style={commonButtonStyles}
               onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
             >
-              Skip This Page
+              Skip Page
             </button>
 
           </>
@@ -234,24 +261,24 @@ function DiseaseEngine() {
             <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles}
             onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
             >
-              Run Different Disease
+              Run Diff Disease
             </button>
             <button className={buttonClasses.runGptWithMed} style={commonButtonStyles}
                 onClick={() => handleButtonClick("runGptwithMedication", diseaseInfo, index)}
             >
-              Run GPT for medication
+              Run GPT for med
             </button>
             <button className={buttonClasses.runGptWithoutrMed} style={commonButtonStyles}
                 onClick={() => handleButtonClick("runGptWithoutMedication", diseaseInfo, index)}
             >
-              Get Disease Info without Medication
+              Get Disease Info without Med
             </button>
             <button 
               className={buttonClasses.skipPage} 
               style={commonButtonStyles}
               onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
             >
-              Skip This Page
+              Skip Page
             </button>
           </>
         );
@@ -266,14 +293,14 @@ function DiseaseEngine() {
             <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
                 onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
             >
-              Run Different Disease (with GPT)
+              Run Diff Disease (with GPT)
             </button>
             <button 
               className={buttonClasses.skipPage} 
               style={commonButtonStyles}
               onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
             >
-              Skip This Page
+              Skip Page
             </button>
           </>
         );
