@@ -16,9 +16,10 @@ function WordFilling() {
  
   const handleDownload = async () => {
     setLoading(true); 
+    const session_id = localStorage.getItem("session_id");
     try {
       // Step 1: Get the zip filename from the backend
-      const filenameResponse = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-zip-filename");
+      const filenameResponse = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-zip-filename", {params: { session_id }});
       const filename = filenameResponse.data.filename;
   
       if (!filename) {
@@ -28,8 +29,8 @@ function WordFilling() {
       }
   
       // Step 2: Send the request to the backend to generate the documents
-      const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/generate-documents", {}, {
-        responseType: 'blob',  // Important to handle binary data
+      const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/generate-documents", { session_id }, {
+        responseType: 'blob',
       });
   
       // Step 3: Create a temporary link to trigger the download with the fetched filename
