@@ -17,6 +17,7 @@ function DiseaseEngine() {
   const [editableFields, setEditableFields] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [loading, setLoading] = useState({});
+  const [originalDiseaseData, setOriginalDiseaseData] = useState([]);
 
 
   // Toggle edit mode for all fields on a page
@@ -85,9 +86,11 @@ function DiseaseEngine() {
 
     try {
       // Send the updated data to the backend
+      const session_id = localStorage.getItem("session_id");
       const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-disease-data", {
         pageIndex: index,
         updatedData: updatedData,
+        session_id
       });
 
       // Handle success
@@ -106,10 +109,14 @@ function DiseaseEngine() {
     useEffect(() => {
         const fetchDiseaseData = async () => {
             try {
-                const response = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-main-cont-response/");  // Change to GET request
+                const session_id = localStorage.getItem("session_id");
+                const response = await axios.get("https://pdf-auto-bd-6yf5.onrender.com/get-main-cont-response", {
+                  params: { session_id }
+                });
                 const data = response.data.mainContResponse;  // Get the mainContResponse from the response
                 const formattedData = Object.values(data);  // Convert the object to an array if needed
                 setDiseaseData(formattedData);  // Store the formatted data into the state
+                setOriginalDiseaseData(JSON.parse(JSON.stringify(formattedData)));  // deep clone
             } catch (error) {
                 console.error("Error fetching disease data:", error);
                 alert("Error fetching disease data. Please try again.");
@@ -123,10 +130,25 @@ function DiseaseEngine() {
     setLoading((prevLoading) => ({ ...prevLoading, [index]: true })); 
 
     try {
+      // if (actionType === "runSameDiseaseGpt") {
+      //   const original = originalDiseaseData[index];
+      //   const current = diseaseData[index];
+
+      //   console.log(`\u{1F50D} Comparison for Page ${index + 1}`);
+      //   console.log("Before Save - Disease Name:", original?.diseaseName);
+      //   console.log("After Save  - Disease Name:", current?.diseaseName);
+      //   console.log("Before Save - Medication:", original?.med);
+      //   console.log("After Save  - Medication:", current?.med);
+
+      //   return; // skip backend call
+      // }
+
+      const session_id = localStorage.getItem("session_id");
       let apiUrl;
       const data = {
         disease_info: diseaseInfo,
-        index: index // Pass the index along with disease information
+        index: index, 
+        session_id
       };
 
       // Set API endpoint based on the action type
@@ -137,9 +159,29 @@ function DiseaseEngine() {
         case "runDiffDisease":
         apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease";
         break;
+        // case "runSameDiseaseGpt":
+        // apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-same-disease-gpt";
+        // break;
         case "runSameDiseaseGpt":
-        apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-same-disease-gpt";
-        break;
+          const original = originalDiseaseData[index];
+          const current = diseaseData[index];
+        
+          console.log(`🔍 Comparison for Page ${index + 1}`);
+          console.log("Before Save - Disease Name:", original?.diseaseName);
+          console.log("After Save  - Disease Name:", current?.diseaseName);
+          console.log("Before Save - Medication:", original?.med);
+          console.log("After Save  - Medication:", current?.med);
+        
+          apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-same-disease-gpt";
+          data.original_info = {
+            diseaseName: original?.diseaseName,
+            med: original?.med,
+          };
+          data.updated_info = {
+            diseaseName: current?.diseaseName,
+            med: current?.med,
+          };
+          break;
         case "runDiffDiseaseGPT":
         apiUrl = "https://pdf-auto-bd-6yf5.onrender.com/run-different-disease-gpt";
         break;
@@ -155,158 +197,55 @@ function DiseaseEngine() {
 
       }
 
-      // Send request to backend
       const response = await axios.post(apiUrl, data);
       const updatedData = response.data.updated_data;
 
-      // Update state with the new data (replacing the content of the skipped page)
-      setDiseaseData((prevState) =>
-        prevState.map((disease) =>
-          disease.text1 === diseaseInfo.text1 ? { ...disease, ...updatedData } : disease
-        )
-      );
+      // setDiseaseData((prev) =>
+      //   prev.map((disease) =>
+      //     disease.text1 === diseaseInfo.text1 ? { ...disease, ...updatedData } : disease
+      //   )
+      // );
+      setDiseaseData((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], ...updatedData };
+        return updated;
+      });
     } catch (error) {
       console.error("Error processing the action:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, [index]: false }));
     }
-    finally {
-        setLoading((prevLoading) => ({ ...prevLoading, [index]: false }));  // Set loading to false after response
-      }
   };
 
-  // Function to render buttons based on showButton value
   const renderButtons = (showButton, diseaseInfo, index) => {
-    const commonButtonStyles = {
-        transition: "background-color 0.3s ease, transform 0.3s ease ",
-      }    
-
-    const buttonClasses = {
-        runDifferentDisease: "common-btn btn btn-primary btn-sm me-2",
-        runSameDisease: "common-btn btn btn-success btn-sm me-2",
-        runDifferentGPT: "common-btn btn btn-secondary btn-sm me-2",
-        skipPage: "common-btn btn btn-danger btn-sm",
-        runGptWithMed: "common-btn btn btn-warning text-white bg-dark btn-sm me-2",
-        runGptWithoutrMed: "common-btn btn btn-info text-light btn-sm me-2",
-
+    const commonStyle = {
+      transition: "background-color 0.3s ease, transform 0.3s ease"
     };
-
-
-    if (loading[index]) {  // Check if the page is loading
-        return (
-          <div className="text-center">
-            <Spinner animation="grow" size="sm" role="status" variant="danger" />
-            <p>Loading...</p>
-          </div>
-        );
-      }
-
-    switch (showButton) {
-      case "0":  // No disease found
-      return (
-        <>
-          <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles} 
-            onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
-          >
-            Run Diff Disease
-          </button>
-          <button className={buttonClasses.runSameDisease} style={commonButtonStyles}
-              onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}
-          >
-            Run Same Disease (with GPT)
-          </button>
-          <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
-              onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
-              >
-            Run Diff Disease (with GPT)
-          </button>
-          <button className={buttonClasses.runGptWithoutrMed} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runGptWithoutMedication", diseaseInfo, index)}
-            >
-              Get Disease Info without Med
-            </button>
-
-        </>
-      );
-
-      case "1":  // No disease found
-        return (
-          <>
-            <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles} 
-              onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
-            >
-              Run Diff Disease
-            </button>
-            <button className={buttonClasses.runSameDisease} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}
-            >
-              Run Same Disease (with GPT)
-            </button>
-            <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
-                >
-              Run Diff Disease (with GPT)
-            </button>
-            <button 
-              className={buttonClasses.skipPage} 
-              style={commonButtonStyles}
-              onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
-            >
-              Skip Page
-            </button>
-
-          </>
-        );
-      case "2":  // No medication found
-        return (
-          <>
-            <button className={buttonClasses.runDifferentDisease} style={commonButtonStyles}
-            onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}
-            >
-              Run Diff Disease
-            </button>
-            <button className={buttonClasses.runGptWithMed} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runGptwithMedication", diseaseInfo, index)}
-            >
-              Run GPT for med
-            </button>
-            <button className={buttonClasses.runGptWithoutrMed} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runGptWithoutMedication", diseaseInfo, index)}
-            >
-              Get Disease Info without Med
-            </button>
-            <button 
-              className={buttonClasses.skipPage} 
-              style={commonButtonStyles}
-              onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
-            >
-              Skip Page
-            </button>
-          </>
-        );
-      case "3":  // No medications left to process
-        return (
-          <>
-            <button className={buttonClasses.runSameDisease} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}
-            >
-              Run Same Disease (with GPT)
-            </button>
-            <button className={buttonClasses.runDifferentGPT} style={commonButtonStyles}
-                onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}
-            >
-              Run Diff Disease (with GPT)
-            </button>
-            <button 
-              className={buttonClasses.skipPage} 
-              style={commonButtonStyles}
-              onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}
-            >
-              Skip Page
-            </button>
-          </>
-        );
-      default:
-        return null; // No buttons for other cases
-    }
+    const buttonClasses = {
+      runDifferentDisease: "common-btn btn btn-primary btn-sm me-2",
+      runSameDisease: "common-btn btn btn-success btn-sm me-2",
+      runDifferentGPT: "common-btn btn btn-secondary btn-sm me-2",
+      skipPage: "common-btn btn btn-danger btn-sm",
+      runGptWithMed: "common-btn btn btn-warning text-white bg-dark btn-sm me-2",
+      runGptWithoutrMed: "common-btn btn btn-info text-light btn-sm me-2",
+    };
+    if (loading[index]) {
+      return <div className="text-center"><Spinner animation="grow" size="sm" role="status" variant="danger" /><p>Loading...</p></div>;
+    }    
+    return (
+      <div>
+        <div className="d-flex flex-wrap mb-2">
+          <button className={buttonClasses.runDifferentDisease} style={commonStyle} onClick={() => handleButtonClick("runDiffDisease", diseaseInfo, index)}>Run Diff Disease</button>
+          <button className={buttonClasses.runDifferentGPT} style={commonStyle} onClick={() => handleButtonClick("runDiffDiseaseGPT", diseaseInfo, index)}>Run Diff Disease (with GPT)</button>
+          <button className={buttonClasses.runSameDisease} style={commonStyle} onClick={() => handleButtonClick("runSameDiseaseGpt", diseaseInfo, index)}>Run Custom Disease</button>
+        </div>
+        <div className="d-flex flex-wrap">
+          <button className={buttonClasses.runGptWithMed} style={commonStyle} onClick={() => handleButtonClick("runGptwithMedication", diseaseInfo, index)}>Run GPT for med</button>
+          <button className={buttonClasses.runGptWithoutrMed} style={commonStyle} onClick={() => handleButtonClick("runGptWithoutMedication", diseaseInfo, index)}>Get Disease Info without Med</button>
+          <button className={buttonClasses.skipPage} style={commonStyle} onClick={() => handleButtonClick("skipPage", diseaseInfo, index)}>Skip Page</button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -321,151 +260,70 @@ function DiseaseEngine() {
             <div key={index} className="mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <h5 className="text-primary">Page {index + 1}</h5>
-
-                {disease.showButton && (
-                  <div>
-                    {renderButtons(disease.showButton, disease, index)}
-                  </div>
-                )}
+                <div>{renderButtons(disease.showButton, disease, index)}</div>
               </div>
 
-              {/* Editable or view-only Medication */}
               <div className="mb-3">
                 <strong>Disease:</strong>
                 {editableFields[index]?.editable ? (
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={disease.diseaseName}
-                    onChange={(e) => handleChange(index, "diseaseName", e.target.value)}
-                  />
+                  <input type="text" className="form-control" value={disease.diseaseName} onChange={(e) => handleChange(index, "diseaseName", e.target.value)} />
                 ) : (
                   <p className="text-success">{disease.diseaseName}</p>
                 )}
               </div>
 
-
-              {/* Editable or view-only Medication */}
               <div className="mb-3">
                 <strong>Medication:</strong>
                 {editableFields[index]?.editable ? (
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={disease.med}
-                    onChange={(e) => handleChange(index, "med", e.target.value)}
-                  />
+                  <input type="text" className="form-control" value={disease.med} onChange={(e) => handleChange(index, "med", e.target.value)} />
                 ) : (
                   <p className="text-success">{disease.med}</p>
                 )}
               </div>
 
-              {/* Show/Hide Description */}
-              <p
-                className="text-info cursor-pointer"
-                onClick={() => toggleDescriptionVisibility(index)}
-              >
+              <p className="text-info cursor-pointer" onClick={() => toggleDescriptionVisibility(index)}>
                 {visibleDescription[index] ? "Hide Description" : "Show Description"}
               </p>
               {visibleDescription[index] && (
                 <div className="mb-3">
                   <strong>Description:</strong>
                   {editableFields[index]?.editable ? (
-                    <textarea
-                      className="form-control"
-                      value={disease.text1}
-                      onChange={(e) => handleChange(index, "text1", e.target.value)}
-                    />
+                    <textarea className="form-control" value={disease.text1} onChange={(e) => handleChange(index, "text1", e.target.value)} />
                   ) : (
                     <p>{disease.text1}</p>
                   )}
                 </div>
               )}
 
-              {/* Show/Hide Symptoms */}
-              <p
-                className="text-info cursor-pointer"
-                onClick={() => toggleSymptomsVisibility(index)}
-              >
+              <p className="text-info cursor-pointer" onClick={() => toggleSymptomsVisibility(index)}>
                 {visibleSymptoms[index] ? "Hide Symptoms" : "Show Symptoms"}
               </p>
               {visibleSymptoms[index] && (
                 <div className="mb-3">
                   <strong>Symptoms:</strong>
                   {editableFields[index]?.editable ? (
-                    <textarea
-                      className="form-control"
-                      value={disease.text2}
-                      onChange={(e) => handleChange(index, "text2", e.target.value)}
-                    />
+                    <textarea className="form-control" value={disease.text2} onChange={(e) => handleChange(index, "text2", e.target.value)} />
                   ) : (
                     <p>{disease.text2}</p>
                   )}
                 </div>
               )}
 
-              {/* Edit Button (only once per page) */}
-              <button
-                className={`btn ${editableFields[index]?.editable ? 'btn-success' : 'btn-outline-primary'} btn-lg me-3`}
-                style={{
-                    borderRadius: "30px",  
-                    padding: "8px 20px",  
-                    fontWeight: "500",  
-                    fontSize: "1rem",  
-                    transition: "all 0.3s ease-in-out",  
-                }}
-                onClick={() => {
-                    if (editableFields[index]?.editable) {
-                    handleSaveChanges(index);  // Save changes when in editable mode
-                    } else {
-                    toggleEditableFields(index);  // Toggle editable mode when in view mode
-                    }
-                }}
-                >
+              <button className={`btn ${editableFields[index]?.editable ? 'btn-success' : 'btn-outline-primary'} btn-lg me-3`} style={{ borderRadius: "30px", padding: "8px 20px", fontWeight: "500", fontSize: "1rem", transition: "all 0.3s ease-in-out" }} onClick={() => editableFields[index]?.editable ? handleSaveChanges(index) : toggleEditableFields(index)}>
                 {editableFields[index]?.editable ? "Save Changes" : "Edit"}
-                </button>
+              </button>
             </div>
           ))}
 
-          {/* Submit Button (trigger confirmation dialog) */}
           <div className="text-center mt-4">
-            <button
-              className="btn btn-primary btn-lg"
-              onClick={handleSubmit}
-            >
-              Submit
-            </button>
+            <button className="btn btn-primary btn-lg" onClick={handleSubmit}>Submit</button>
           </div>
 
-          {/* Confirmation Modal */}
-          <Modal
-            isOpen={isModalOpen}
-            onRequestClose={handleCancelSubmit}
-            style={{
-              content: {
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "250px",
-                height: "auto",
-                maxHeight: "200px",
-                padding: "30px",
-                borderRadius: "15px",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #ddd",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-              },
-            }}
-          >
+          <Modal isOpen={isModalOpen} onRequestClose={handleCancelSubmit} style={{ content: { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "250px", maxHeight: "200px", padding: "30px", borderRadius: "15px", backgroundColor: "#f8f9fa", border: "1px solid #ddd", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" } }}>
             <h4 style={{ textAlign: "center", fontWeight: "500", color: "#495057" }}>Are you sure you want to continue?</h4>
             <div className="d-flex justify-content-center mt-3">
-              <button className="btn btn-danger me-3" onClick={handleCancelSubmit}>
-                No
-              </button>
-              <button className="btn btn-success" onClick={handleConfirmSubmit}>
-                Yes
-              </button>
+              <button className="btn btn-danger me-3" onClick={handleCancelSubmit}>No</button>
+              <button className="btn btn-success" onClick={handleConfirmSubmit}>Yes</button>
             </div>
           </Modal>
         </div>
