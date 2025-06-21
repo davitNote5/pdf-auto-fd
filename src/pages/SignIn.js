@@ -9,7 +9,7 @@ function SignIn() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch('https://pdf-auto-bd-6yf5.onrender.com/login', {
         method: 'POST',
@@ -18,12 +18,14 @@ function SignIn() {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (response.ok) {
-        localStorage.setItem("isLoggedIn", true);        
+        const data = await response.json(); // 🔄 Parse response
+        localStorage.setItem("isLoggedIn", true);
         localStorage.setItem("username", username);
-
-        navigate("/form", { replace: true }); // Redirect and replace the history
+        localStorage.setItem("session_id", data.session_id); // ✅ Store session ID
+  
+        navigate("/form", { replace: true });
       } else {
         alert("Invalid username or password.");
       }
