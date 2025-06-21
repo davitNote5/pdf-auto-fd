@@ -71,7 +71,9 @@ function FormPage() {
       formData.append("sn_name", snName);
       formData.append("appointment_dates", JSON.stringify(appointmentDates));
       formData.append("appointment_times", JSON.stringify(appointmentTimes));
-      formData.append("file", selectedFile); // Append the PDF file
+      formData.append("file", selectedFile); 
+      formData.append("session_id", localStorage.getItem("session_id")); 
+
 
       const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/upload/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
