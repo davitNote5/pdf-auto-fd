@@ -73,11 +73,29 @@ function DiseaseEngine() {
 
     try {
       // Send updated extracted data to the backend for saving
-      const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-extracted-data", modifiedData);
-      // console.log("Data saved:", response.data);
+      // const response = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-extracted-data", modifiedData);
+      // // console.log("Data saved:", response.data);
 
-      // Send data for processing
-      const processResponse = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/disease-processing/", modifiedData);
+      // // Send data for processing
+      // const processResponse = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/disease-processing/", modifiedData);
+
+      const session_id = localStorage.getItem("session_id");
+
+      // Save extracted data
+      // await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-extracted-data", {
+      //   ...modifiedData,
+      //   session_id
+      // });
+      
+      await axios.post("https://pdf-auto-bd-6yf5.onrender.com/save-extracted-data", {
+        session_id,
+        modified_data: modifiedData  // ✅ wrap it inside modified_data
+      });
+
+      // Run disease processing
+      const processResponse = await axios.post("https://pdf-auto-bd-6yf5.onrender.com/disease-processing/", {
+        session_id
+      });
       // console.log("Disease Processing Result:", processResponse.data);
       setProcessedData(processResponse.data);
   
